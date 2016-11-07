@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Browsergame</title>
+    <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var map;
+    var layer;
+
+
+    var roadend;
+    var cornerright;
+    var leftroad;
+    var rightroad;
+    var downroad;
+    var uproad;
+    var sand;
+    var player;
+    var car;
+    var road;
+    var wall;
+    var police;
+    var cursors;
+    var sprite;
+    var EnemiesText;
+    var Enemies = 0;
+
+
+    var Game = function () {
+
+        this._width = window.innerWidth;
+        /*window.innerWidth;*/
+        this._height = window.innerHeight;
+        /*window.innerHeight;*/
+
+        this.game = new Phaser.Game(this._width, this._height, Phaser.CANVAS, '', {
+            preload: this.preload,
+            create: this.create,
+            update: this.update,
+            render: this.render,
+            collectCherry: this.collectCherry,
+            collectCoin: this.collectCoin
+        });
+    }
+
+
+    Game.prototype = {
+        preload: function () {
+            var tilemapdebug = this.game.load.tilemap('map', 'map.json', null, Phaser.Tilemap.TILED_JSON);
+            //console.log(tilemapdebug.tilesets);
+
+
+            this.game.load.image('tiles', 'desert.png');
+
+            //Fix pl0x
+            this.game.load.image('roadend', 'desert.png');
+
+            this.game.load.spritesheet('player', 'assets/cars/car.png');
+        },
+
+        create: function () {
+
+            this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+            // Load the map.
+            map = this.game.add.tilemap('map');
+            map.addTilesetImage('desert', 'tiles');
+            map.setCollisionBetween(1, 99);
+
+            layer = map.createLayer('LVL1');
+
+            layer.resizeWorld();
+            //layer.wrap = true;
+
+            player = this.game.add.group();
+            player.enableBody = true;
+            this.game.physics.enable(player);
+
+
+            map.createFromObjects('OL1', 10, 'roadend', 0, true, false, roadend);
+            map.createFromObjects('OL1', 22, 'road', 0, true, false, road);
+            map.createFromObjects('OL1', 13, 'wall', 0, true, false, wall);
+            map.createFromObjects('OL1', 37, 'cornerright', 0, true, false, cornerright);
+            map.createFromObjects('OL1', 21, 'leftroad', 0, true, false, leftroad);
+            map.createFromObjects('OL1', 23, 'rightroad', 0, true, false, rightroad);
+            map.createFromObjects('OL1', 16, 'sand', 0, true, false, sand);
+            map.createFromObjects('OL1', 36, 'downroad', 0, true, false, downroad);
+            map.createFromObjects('OL1', 8, 'uproad', 0, true, false, uproad);
+
+            /*kisten.immovable = false;
+            kisten.moves = false;
+            kisten.setAll('body.mass','body', 1);
+            kisten.setAll('body.collideWorldBounds', true);*/
+            
+
+            //console.log('Anzahl Police: ' + police.length);
+
+            sprite = this.game.add.sprite(2%0, 1500, 'player');
+            sprite.anchor.set(0.5);
+            this.game.physics.arcade.enable(sprite);
+            sprite.body.collideWorldBounds = true;
+
+
+            //  Add animations to sprites
+            /*coins.callAll('animations.add', 'animations', 'spin', [0, 1, 2, 3, 4, 5], 10, true);
+            coins.callAll('animations.play', 'animations', 'spin');*/
+
+            /*coins.callAll('animations.add', 'animations', 'spin', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 10, true);
+            coins.callAll('animations.play', 'animations', 'spin');*/
+
+
+            EnemiesText = this.game.add.text(16, 8, 'Enemies killed: 0', {fontSize: '10px', fill: '#000'});
+
+            //  This adjusts the collision body size.
+            sprite.body.setSize(150, 100, 0, 0);
+
+            //  We'll set a lower max angular velocity here to keep it from going totally nuts
+            sprite.body.maxAngular = 500;
+
+            //  Apply a drag otherwise the sprite will just spin and never slow down
+            sprite.body.angularDrag = 50;
+
+            this.game.camera.follow(sprite);
+
+            cursors = this.game.input.keyboard.createCursorKeys();
+        },
+
+        /*collectCoin: function (player, coins) {
+
+            //alert(player);
+            // Removes the coin from the screen
+            console.log('Coins');
+            coins.kill();
+
+            coin += 1;
+            CoinText.text = 'Coins: ' + coin;
+
+        },*/
+        update: function () {
+
+            //  Collide the player and the coins with the maps
+            //this.game.physics.arcade.collide(sprite, boxes, this.collectBox);
+            this.game.physics.arcade.collide(sprite, car);
+
+            sprite.body.velocity.x = 0;
+            sprite.body.velocity.y = 0;
+            sprite.body.angularVelocity = 0;
+            sprite.width = 64;
+            sprite.height = 64;
+
+                if (cursors.up.isDown)
+                {
+                    this.game.physics.arcade.accelerationFromRotation(sprite.rotation, 4000, sprite.body.acceleration);
+                }
+                else
+                {
+                    sprite.body.acceleration.set(0);
+                }
+
+                if (cursors.left.isDown)
+                {
+                    sprite.body.angularVelocity = -100;
+                }
+                else if (cursors.right.isDown)
+                {
+                    sprite.body.angularVelocity = 100;
+                }
+                else
+                {
+                    sprite.body.angularVelocity = 0;
+                }
+
+            },
+
+        render: function () {
+
+
+
+        }
+    };
+
+
+    new Game();
+</script>
+
+</body>
+</html>
