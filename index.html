@@ -17,7 +17,6 @@
     var map;
     var layer;
 
-
     var roadend;
     var cornerright;
     var leftroad;
@@ -85,6 +84,14 @@
             player = this.game.add.group();
             player.enableBody = true;
             this.game.physics.enable(player);
+
+            wall = this.game.add.group();
+            wall.enableBody = true;
+            this.game.physics.enable(wall);
+
+            wall.immovable = true;
+            wall.moves = false;
+            wall.setAll('body.immovable','body',true);
 
 
             map.createFromObjects('OL1', 10, 'roadend', 0, true, false, roadend);
